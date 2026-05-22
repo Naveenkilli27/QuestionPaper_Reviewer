@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Review Report — {{ course_name }}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <style>
+    html { background: #0f1419; color: #e8eef5; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; line-height: 1.6; }
+    .report { max-width: 1100px; margin: 0 auto; padding: 1rem 1.5rem 3rem; }
+    h1 { font-size: 1.6rem; margin-bottom: .25rem; }
+    h2 { font-size: 1.15rem; color: #3d9aed; margin: 2rem 0 .5rem; border-bottom: 1px solid #2a3544; padding-bottom: .35rem; }
+    h3 { font-size: 1rem; color: #8b9bb0; margin: 1.2rem 0 .4rem; }
+    p { margin: .5rem 0; }
+
+    /* Tables — long excerpts must not break layout or markdown rendering */
+    #content { overflow-wrap: anywhere; }
+    table { border-collapse: collapse; width: 100%; font-size: .85rem; margin: .75rem 0 1.25rem; table-layout: fixed; }
+    th { background: #1a222d; color: #8b9bb0; padding: .5rem .65rem; border: 1px solid #2a3544; text-align: left; }
+    td { padding: .45rem .65rem; border: 1px solid #2a3544; vertical-align: top; word-break: break-word; }
+    tr:nth-child(even) td { background: #141c25; }
+
+    /* Status badges in cells */
+    td:has-text("✅") { color: #5bd39a; }
+    td:has-text("❌") { color: #f07178; }
+    td:has-text("⚠️") { color: #f0b429; }
+
+    /* Inline code and code blocks */
+    code { background: #1a222d; padding: .1rem .35rem; border-radius: 3px; font-size: .85em; }
+    pre  { background: #1a222d; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+    pre code { background: none; padding: 0; }
+
+    /* Bold in issues section */
+    strong { color: #e8eef5; }
+
+    /* Meta bar */
+    .meta { display: flex; gap: 1.5rem; flex-wrap: wrap;
+            background: #1a222d; border-radius: 8px;
+            padding: .65rem 1rem; font-size: .88rem;
+            margin-bottom: 1.5rem; color: #8b9bb0; }
+    .meta span strong { color: #e8eef5; }
+
+    /* Back link */
+    .back { margin-bottom: 1rem; }
+    .back a { color: #3d9aed; font-size: .9rem; }
+
+    /* Loading state */
+    #loading { text-align: center; padding: 3rem;
+               font-size: 1rem; color: #8b9bb0; }
+
+    /* Print */
+    @media print {
+      body { background: #fff; color: #000; }
+      .back { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="report">
+    <p class="back"><a href="/">← Back to form</a></p>
+
+    <h1>QUESTION PAPER REVIEW REPORT</h1>
+    <div class="meta">
+      <span><strong>Course:</strong> {{ course_name }}</span>
+      <span><strong>Sets reviewed:</strong> {{ sets_count }}</span>
+      <span><strong>Output:</strong> Step 1 — CO · Step 2 — Bloom · Step 3 — Duplicates · Step 4 — Syllabus</span>
+    </div>
+
+    <div id="loading">Rendering report…</div>
+    <div id="content" style="display:none"></div>
+  </div>
+
+  <script>
+    const raw = {{ review_markdown | tojson }};
+    marked.setOptions({ breaks: true, gfm: true });
+    const el = document.getElementById('content');
+    try {
+      el.innerHTML = marked.parse(raw);
+    } catch (err) {
+      el.innerHTML = '';
+      const pre = document.createElement('pre');
+      pre.style.whiteSpace = 'pre-wrap';
+      pre.style.wordBreak = 'break-word';
+      pre.textContent = raw;
+      el.appendChild(pre);
+    }
+    document.getElementById('loading').style.display = 'none';
+    el.style.display = 'block';
+  </script>
+</body>
+</html>

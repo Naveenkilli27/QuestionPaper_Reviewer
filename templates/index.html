@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Question Paper Reviewer</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <style>
+        html {
+            background: #0f1419;
+            color: #e8eef5;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", system-ui, sans-serif;
+            line-height: 1.5;
+        }
+
+        a {
+            color: #3d9aed;
+        }
+    </style>
+    <script src="/static/app.js" defer></script>
+</head>
+
+<body>
+    <header class="hero">
+        <h1>Question Paper Reviewer</h1>
+        <p>Structured checks: CO alignment, Bloom levels, duplicate questions, and syllabus alignment across your uploaded set(s).</p>
+    </header>
+
+    {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+
+    <main class="card">
+        <form id="review-form" action="/review" method="post" enctype="multipart/form-data" class="grid">
+
+            <section>
+                <h2>1. How many question paper sets?</h2>
+                <p class="hint">Enter 1–5. One upload slot appears per set.</p>
+                <label>Number of sets (1–5)
+                    <input id="num_sets" type="number" name="num_sets" min="1" max="5" step="1" value="{{ num_sets_prefill|default(1) }}" required />
+                </label>
+            </section>
+
+            <section>
+                <h2>2. Question paper files</h2>
+                <p class="hint">PDF, DOCX, or plain text — one file per set.</p>
+                <div id="upload-slots"></div>
+            </section>
+
+            <section>
+                <h2>3. Course name / code</h2>
+                <label>Course
+                    <input type="text" name="course_name" placeholder="e.g. CS301 — Data Structures" />
+                </label>
+            </section>
+
+            <section>
+                <h2>4. Course outcomes (COs)</h2>
+                <p class="hint">One per line — <code>CO1: Apply …</code> — used for Step 1 (expected CO is inferred from question text vs these lines).</p>
+                <textarea name="cos_text" rows="6" placeholder="CO1: Apply modern JavaScript concepts&#10;CO2: Build React UI components&#10;CO3: Implement React hooks&#10;CO4: Create multi-page apps with React Router&#10;CO5: Implement JWT authentication"></textarea>
+                <label class="inline">
+                    <input type="checkbox" name="co_required" checked /> CO mapping check required
+                </label>
+            </section>
+
+            <section>
+                <h2>5. Syllabus units (optional)</h2>
+                <p class="hint">One topic per line (e.g. <code>Unit 1: React hooks</code>). Used in <strong>Step 4</strong> of the report to see if each question aligns with your syllabus wording (keyword overlap).</p>
+                <textarea name="syllabus_units" rows="5" placeholder="Unit 1: JavaScript ES6+ Features&#10;Unit 2: React Fundamentals&#10;Unit 3: React Hooks"></textarea>
+            </section>
+
+            <section>
+                <h2>6. Bloom's taxonomy</h2>
+                <label class="inline">
+                    <input type="checkbox" name="bloom_in_paper" checked />
+                    Paper tags Bloom's / KL / BTL level per question
+                </label>
+            </section>
+
+            <div class="actions">
+                <button type="submit">Run review</button>
+                <span class="hint">Parses your files and builds four tables: CO, Bloom, duplicates, and syllabus (if you paste syllabus lines).</span>
+            </div>
+
+        </form>
+    </main>
+
+    <footer class="foot">
+        <p>Heuristic parsing — verify results against your original PDF/DOCX.</p>
+    </footer>
+
+    <div id="busy-overlay" class="busy-overlay" aria-live="polite" aria-busy="false" hidden>
+        <div class="busy-card">
+            <p class="busy-title">Building your report…</p>
+            <p class="busy-text">
+                Parsing your file(s) and building the three-step report. Large PDFs may take a few seconds.
+            </p>
+        </div>
+    </div>
+
+</body>
+
+</html>
